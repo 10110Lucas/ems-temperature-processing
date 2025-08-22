@@ -9,6 +9,7 @@ import org.springframework.amqp.core.MessagePostProcessor;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -17,6 +18,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.algaworks.algasensors.temperature.processing.infrastructure.rabbitmq.RabbitMQConfig.FANOUT_EXCHANGE_NAME;
 
@@ -29,7 +32,7 @@ public class TemperatureProcessingLogController {
     private final RabbitTemplate template;
 
     @PostMapping(consumes = MediaType.TEXT_PLAIN_VALUE)
-    public void data(@PathVariable TSID sensorId, @RequestBody String input) {
+    public ResponseEntity<TemperatureLogOutput> data(@PathVariable TSID sensorId, @RequestBody String input) {
         if (input == null || input.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
         Double temperature;
@@ -58,5 +61,9 @@ public class TemperatureProcessingLogController {
         };
 
         template.convertAndSend(exchange, routingKey, payload, messagePostProcessor);
+
+        return ResponseEntity.ok()
+                .header("sensorId", payload.getSensorId().toString())
+                .body(payload);
     }
 }
