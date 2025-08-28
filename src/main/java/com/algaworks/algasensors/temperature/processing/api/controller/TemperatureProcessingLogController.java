@@ -18,14 +18,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.OffsetDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.algaworks.algasensors.temperature.processing.infrastructure.rabbitmq.RabbitMQConfig.FANOUT_EXCHANGE_NAME;
 
 @Slf4j
 @RestController
-@RequestMapping("/api/sensors/{sensorId}/temperature/data")
+@RequestMapping("/{sensorId}/temperature/data")
 @RequiredArgsConstructor
 public class TemperatureProcessingLogController {
 
@@ -35,7 +33,7 @@ public class TemperatureProcessingLogController {
     public ResponseEntity<TemperatureLogOutput> data(@PathVariable TSID sensorId, @RequestBody String input) {
         if (input == null || input.isEmpty()) throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
 
-        Double temperature;
+        double temperature;
         try {
             temperature = Double.parseDouble(input);
         } catch (NumberFormatException e) {
